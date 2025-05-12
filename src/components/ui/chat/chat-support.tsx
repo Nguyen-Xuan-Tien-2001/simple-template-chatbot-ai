@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { LogOut, MessageCirclePlus, Send } from "lucide-react";
+import Markdown, { Components } from "react-markdown";
 
 import { Button } from "@/components/ui/button";
 import { ChatMessageList } from "./chat-message-list";
@@ -16,6 +17,7 @@ import { useGetHistory } from "./hooks/useGetHistory";
 import { Message } from "./hooks/getHistory";
 import { Separator } from "@/components/ui/separator";
 import { useClearHistoryMutation } from "./hooks/useClearHistoryMutation";
+import CustomLink from "@/lib/customlink";
 const UUID = "988b5c3b-4d21-4c0f-bddb-73957057b667";
 
 export default function ChatSupport() {
@@ -23,6 +25,9 @@ export default function ChatSupport() {
   const { data: messages, refetch } = useGetHistory({
     userId: UUID,
   });
+  const customComponents: Components = {
+    a: CustomLink,
+  };
 
   const clearHistoryMutation = useClearHistoryMutation();
 
@@ -109,6 +114,10 @@ export default function ChatSupport() {
         <ChatMessageList>
           {!!dataMessages.length &&
             dataMessages?.map((item, id) => {
+              const markdownLinks = item.references
+                ? generateMarkdownLinks(item.references)
+                : "";
+
               return (
                 <ChatBubble
                   key={id}
@@ -118,7 +127,14 @@ export default function ChatSupport() {
                   <ChatBubbleAvatar
                     fallback={item.role === "user" ? "U" : "AI"}
                   />
-                  <ChatBubbleMessage>{item.content}</ChatBubbleMessage>
+                  <ChatBubbleMessage>
+                    <Markdown components={customComponents}>
+                      {item.content +
+                        (markdownLinks !== ""
+                          ? `\n\n References: ${markdownLinks}`
+                          : "")}
+                    </Markdown>
+                  </ChatBubbleMessage>
                 </ChatBubble>
               );
             })}
@@ -158,4 +174,21 @@ export default function ChatSupport() {
       </div>
     </div>
   );
+}
+
+type LinkMap = {
+  [key: string]: string;
+};
+
+function generateMarkdownLinks(links: LinkMap): string {
+  let result = "";
+
+  for (const key in links) {
+    if (Object.prototype.hasOwnProperty.call(links, key)) {
+      const url = links[key];
+      // Thêm hai ký tự xuống dòng trước mỗi liên kết để tạo dòng trống
+      result += `\n [${key}](${url})`;
+    }
+  }
+  return result;
 }
