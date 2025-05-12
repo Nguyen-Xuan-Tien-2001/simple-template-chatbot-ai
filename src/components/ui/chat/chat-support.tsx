@@ -131,7 +131,7 @@ export default function ChatSupport() {
                     <Markdown components={customComponents}>
                       {item.content +
                         (markdownLinks !== ""
-                          ? `\n\n References: ${markdownLinks}`
+                          ? `\n\n **References:** ${markdownLinks}`
                           : "")}
                     </Markdown>
                   </ChatBubbleMessage>
@@ -180,14 +180,17 @@ type LinkMap = {
   [key: string]: string;
 };
 
+
 function generateMarkdownLinks(links: LinkMap): string {
   let result = "";
+  let counter = 1; // Khởi tạo biến đếm
 
   for (const key in links) {
     if (Object.prototype.hasOwnProperty.call(links, key)) {
       const url = links[key];
-      // Thêm hai ký tự xuống dòng trước mỗi liên kết để tạo dòng trống
-      result += `\n [${key}](${url})`;
+   
+      result += `\n **[${counter}]** [${key}](${url})`;
+      counter++; 
     }
   }
   return result;
