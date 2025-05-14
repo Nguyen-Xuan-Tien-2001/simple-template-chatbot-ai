@@ -151,7 +151,7 @@ export default function ChatSupport() {
                                       const fileUrl =
                                         item.references?.[id - 1]?.metadata
                                           ?.file_url === ""
-                                          ? "tài liệu nội bộ"
+                                          ? "internal documents"
                                           : item.references?.[id - 1]?.metadata
                                               ?.file_url;
                                       return `\n [${
