@@ -18,6 +18,11 @@ import { Message } from "./hooks/getHistory";
 import { Separator } from "@/components/ui/separator";
 import { useClearHistoryMutation } from "./hooks/useClearHistoryMutation";
 import CustomLink from "@/lib/customlink";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 const UUID = "988b5c3b-4d21-4c0f-bddb-73957057b667";
 
 export default function ChatSupport() {
@@ -62,10 +67,10 @@ export default function ChatSupport() {
     if (!query.trim() || mutation.isPending) {
       return; // Không gửi nếu input rỗng hoặc đang loading
     }
-    setDataMessages([...dataMessages, { role: "user", content: query }]); // Cập nhật dữ liệu từ API vào state
+    setDataMessages([...dataMessages, { role: "user", content: query.trim() }]); // Cập nhật dữ liệu từ API vào state
     setQuery("");
     // Gọi mutation với dữ liệu từ state 'query'
-    mutation.mutate({ query: query, user_id: UUID });
+    mutation.mutate({ query: query.trim(), user_id: UUID });
   };
 
   const handleLogOut = () => {
@@ -114,10 +119,6 @@ export default function ChatSupport() {
         <ChatMessageList>
           {!!dataMessages.length &&
             dataMessages?.map((item, id) => {
-              const markdownLinks = item.references
-                ? generateMarkdownLinks(item.references)
-                : "";
-
               return (
                 <ChatBubble
                   key={id}
@@ -128,12 +129,43 @@ export default function ChatSupport() {
                     fallback={item.role === "user" ? "U" : "AI"}
                   />
                   <ChatBubbleMessage>
-                    <Markdown components={customComponents}>
-                      {item.content +
-                        (markdownLinks !== ""
-                          ? `\n\n **References:** ${markdownLinks}`
-                          : "")}
-                    </Markdown>
+                    {item?.content
+                      .split(/(\[\d+(?:, \d+)*\])/)
+                      .map((part, index) => {
+                        const match = part.match(/\[(\d+(?:, \d+)*)\]/);
+                        if (match) {
+                          const idArr = match[1].split(", ").map(Number);
+                          return (
+                            <HoverCard key={index}>
+                              <HoverCardTrigger className="text-blue-500 cursor-pointer">
+                                {part}
+                              </HoverCardTrigger>
+                              <HoverCardContent className="w-[400px]">
+                                <Markdown components={customComponents}>
+                                  {[
+                                    "**References:** \n",
+                                    ...idArr.map((id) => {
+                                      const fileName =
+                                        item.references?.[id - 1]?.metadata
+                                          ?.filename;
+                                      const fileUrl =
+                                        item.references?.[id - 1]?.metadata
+                                          ?.file_url === ""
+                                          ? "tài liệu nội bộ"
+                                          : item.references?.[id - 1]?.metadata
+                                              ?.file_url;
+                                      return `\n [${
+                                        fileName?.replace(".md", "")
+                                      }](${fileUrl}) \n`;
+                                    }),
+                                  ].join("")}
+                                </Markdown>
+                              </HoverCardContent>
+                            </HoverCard>
+                          );
+                        }
+                        return <Markdown components={customComponents} key={index}>{part}</Markdown>;
+                      })}
                   </ChatBubbleMessage>
                 </ChatBubble>
               );
@@ -180,7 +212,6 @@ type LinkMap = {
   [key: string]: string;
 };
 
-
 function generateMarkdownLinks(links: LinkMap): string {
   let result = "";
   let counter = 1; // Khởi tạo biến đếm
@@ -188,9 +219,9 @@ function generateMarkdownLinks(links: LinkMap): string {
   for (const key in links) {
     if (Object.prototype.hasOwnProperty.call(links, key)) {
       const url = links[key];
-   
+
       result += `\n **[${counter}]** [${key}](${url})`;
-      counter++; 
+      counter++;
     }
   }
   return result;

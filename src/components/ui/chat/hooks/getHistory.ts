@@ -5,7 +5,18 @@ import axios from "axios";
 export interface Message {
   content: string;
   role: "user" | "assistant";
-  references?: { [key: string]: string };
+  references?: {
+    id: string;
+    metadata: {
+      chunk_index: number;
+      file_path: string;
+      file_size: number;
+      file_url: string;
+      filename: string;
+      total_chunks: number;
+    };
+    text: string;
+  }[];
 }
 
 // Định nghĩa kiểu dữ liệu cho response từ API history

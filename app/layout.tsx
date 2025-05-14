@@ -27,15 +27,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Không gọi getQueryClient() ở đây nữa
-  // const queryClient = getQueryClient();
 
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Sử dụng Client Component Provider đã import */}
         <Providers>
           {children}
           <Toaster />
