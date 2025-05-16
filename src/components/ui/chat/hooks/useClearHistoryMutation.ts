@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { clearHistory,ClearHistorySuccessResponse } from "./deleteHistory";
+import { clearHistory,ClearHistorySuccessResponse } from "../../../../../lib/deleteHistory";
 
 export function useClearHistoryMutation() {
   const queryClient = useQueryClient();
@@ -7,7 +7,7 @@ export function useClearHistoryMutation() {
   return useMutation<
     ClearHistorySuccessResponse,
     Error,
-    { user_id: string | number }
+    { user_id: string | number; conversation_id: string }
   >({
     mutationFn: clearHistory,
 

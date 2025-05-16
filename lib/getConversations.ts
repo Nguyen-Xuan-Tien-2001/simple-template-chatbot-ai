@@ -2,46 +2,39 @@
 import axios from "axios";
 // Giữ lại các hàm và interfaces khác nếu có
 
-export interface Message {
-  content: string;
-  role: "user" | "assistant";
-  references?: {
-    id: string;
-    metadata: {
-      chunk_index: number;
-      file_path: string;
-      file_size: number;
-      file_url: string;
-      filename: string;
-      total_chunks: number;
-    };
-    text: string;
-  }[];
+export interface conversation {
+  conversation_id: string;
+  conversation_title: string;
 }
 
 // Định nghĩa kiểu dữ liệu cho response từ API history
 // Dựa trên cấu trúc response bạn cung cấp trước đó, giả định GET history cũng có key 'data' chứa mảng
 interface GetHistoryResponseData {
-  data: Message[];
+  data: conversation[];
 }
 
-export async function getHistory(userId: string | number): Promise<Message[]> {
+export async function getConversations(
+  userId: string | number
+): Promise<conversation[]> {
   // Kiểm tra user_id trước khi fetch (tùy chọn, có thể xử lý bằng `enabled` trong useQuery)
   if (!userId) {
     console.warn("getHistory called without a valid userId");
     return []; // Hoặc null tùy thuộc vào cách bạn muốn xử lý ở component
   }
 
-  const API_URL_HISTORY = "http://10.6.18.5:5000/history"; // URL API history của bạn
+  const END_POINT = "conversations";
 
   try {
     // Sử dụng axios.get với URL và truyền tham số query qua 'params'
     // <GetHistoryResponseData> chỉ định kiểu dữ liệu của response.data
-    const response = await axios.get<GetHistoryResponseData>(API_URL_HISTORY, {
-      params: {
-        user_id: userId, // Truyền user_id như query parameter
-      },
-    });
+    const response = await axios.get<GetHistoryResponseData>(
+      process.env.NEXT_PUBLIC_BASE_URL + END_POINT,
+      {
+        params: {
+          user_id: userId, // Truyền user_id như query parameter
+        },
+      }
+    );
 
     // Trả về mảng tin nhắn nằm trong key 'data' của response body
     return response.data.data;

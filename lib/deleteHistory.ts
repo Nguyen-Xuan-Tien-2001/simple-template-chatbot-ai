@@ -2,6 +2,7 @@ import axios from "axios";
 
 interface ClearHistoryPayload {
   user_id: string | number;
+  conversation_id: string;
 }
 export interface ClearHistorySuccessResponse {
   message: string;
@@ -14,14 +15,15 @@ export async function clearHistory(
     throw new Error("User ID is required to clear history.");
   }
 
-  const API_URL_CLEAR_HISTORY = "http://10.6.18.5:5000/clear_history";
+  const END_POINT = "clear_history";
 
   try {
     const response = await axios.delete<ClearHistorySuccessResponse>(
-      API_URL_CLEAR_HISTORY,
+      process.env.NEXT_PUBLIC_BASE_URL + END_POINT,
       {
         params: {
           user_id: payload.user_id,
+          conversation_id: payload.conversation_id,
         },
       }
     );

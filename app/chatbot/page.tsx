@@ -1,12 +1,38 @@
-'use client';
+"use client";
+import { AppSidebar } from "@/components/app-sidebar";
+import { NavActions } from "@/components/nav-actions";
+
+import { Separator } from "@/components/ui/separator";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import ChatSupport from "@/src/components/ui/chat/chat-support";
 import React from "react";
 
 const page = () => {
   return (
-    <div className="min-w-[100vw] min-h-[100vh] flex justify-center bg-gray-100">
-      <ChatSupport />
-    </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-14 shrink-0 items-center gap-2">
+          <div className="flex flex-1 items-center gap-2 px-3">
+            <SidebarTrigger />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <h1 className="text-l font-semibold">Chat with our AI HSV ✨</h1>
+          </div>
+          <div className="ml-auto px-3">
+            <NavActions />
+          </div>
+        </header>
+        <div className="flex flex-1 flex-col gap-4 px-4 py-4">
+          <div className="mx-auto h-full w-full max-w-5xl rounded-xl bg-muted/50">
+            <ChatSupport />
+          </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 };
 export default page;
