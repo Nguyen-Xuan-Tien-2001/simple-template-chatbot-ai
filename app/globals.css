@@ -111,6 +111,18 @@
   --sidebar-ring: oklch(0.488 0.243 264.376);
 }
 
+.custom-color {
+  font-weight: 600;
+  letter-spacing: -0.01875rem;
+  color: transparent;
+  background-clip: text;
+  background-image: linear-gradient(
+    72.83deg,
+    #4285f4 11.63%,
+    #9b72cb 40.43%,
+    #d96570 68.07%
+  );
+}
 @layer base {
   * {
     @apply border-border outline-ring/50;

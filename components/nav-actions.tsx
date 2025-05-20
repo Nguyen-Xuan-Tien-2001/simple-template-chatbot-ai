@@ -12,9 +12,10 @@ import {
   GalleryVerticalEnd,
   LineChart,
   Link,
+  MoonIcon,
   MoreHorizontal,
   Settings2,
-  Star,
+  SunIcon,
   Trash,
   Trash2,
 } from "lucide-react";
@@ -34,6 +35,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useTheme } from "next-themes";
 
 const data = [
   [
@@ -100,14 +102,21 @@ const data = [
 
 export function NavActions() {
   const [isOpen, setIsOpen] = React.useState(false);
+  const { setTheme, theme } = useTheme();
 
   return (
     <div className="flex items-center gap-2 text-sm">
-      <div className="text-muted-foreground hidden font-medium md:inline-block">
-        Edit Oct 08
-      </div>
-      <Button variant="ghost" size="icon" className="h-7 w-7">
-        <Star />
+      <Button
+        className="mr-2 size-8 rounded-full bg-background"
+        variant="outline"
+        size="icon"
+        onClick={() => {
+          setTheme(theme === "dark" ? "light" : "dark");
+        }}
+      >
+        <SunIcon className="size-[1.2rem] rotate-90 scale-0 transition-transform duration-500 ease-in-out dark:rotate-0 dark:scale-100" />
+        <MoonIcon className="absolute size-[1.2rem] rotate-0 scale-100 transition-transform duration-500 ease-in-out dark:-rotate-90 dark:scale-0" />
+        <span className="sr-only">Đổi giao diện</span>
       </Button>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>

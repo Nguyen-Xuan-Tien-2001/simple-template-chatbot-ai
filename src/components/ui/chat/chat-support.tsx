@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 import CustomLink from "@/lib/customlink";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Send } from "lucide-react";
+import { Send, UserRoundSearch } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Markdown, { Components } from "react-markdown";
@@ -100,8 +100,8 @@ export default function ChatSupport() {
     }
   };
   return (
-    <div className="bg-white w-full h-full flex flex-col overflow-hidden relative pb-24">
-      <ScrollArea className="rounded-md h-[68vh]">
+    <div className="w-full h-full flex flex-col overflow-hidden relative pb-24">
+      <ScrollArea className="h-[68vh]">
         <ChatMessageList>
           {!!dataMessages.length &&
             dataMessages?.map((item, id) => {
@@ -112,7 +112,7 @@ export default function ChatSupport() {
                   className="mb-2"
                 >
                   <ChatBubbleAvatar
-                    fallback={item.role === "user" ? "U" : "AI"}
+                    fallback={item.role === "user" ? "U" : "✨"}
                   />
                   <ChatBubbleMessage>
                     {item?.content
@@ -135,7 +135,7 @@ export default function ChatSupport() {
                                     ...idArr.map((id) => {
                                       const fileName =
                                         item.references?.[id - 1]?.metadata
-                                          ?.filename;
+                                          ?.file_name;
                                       const fileUrl =
                                         item.references?.[id - 1]?.metadata
                                           ?.file_url === ""
@@ -184,7 +184,7 @@ export default function ChatSupport() {
           )}
         </ChatMessageList>
       </ScrollArea>
-      <div className="flex items-center gap-2 absolute bottom-0 left-0 right-0 p-4 bg-white">
+      <div className="flex items-center gap-2 absolute bottom-0 left-0 right-0 p-4 ">
         <ChatInput
           placeholder="You can ask me any question about HSV or Yubikey..."
           disabled={mutation.isPending}
@@ -201,7 +201,7 @@ export default function ChatSupport() {
           type="submit"
           size="icon"
         >
-          <Send className="size-4" />
+          <Send className="size-4 dark:text-secondary-foreground" />
         </Button>
       </div>
     </div>

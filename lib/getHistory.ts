@@ -12,7 +12,7 @@ export interface Message {
       file_path: string;
       file_size: number;
       file_url: string;
-      filename: string;
+      file_name: string;
       total_chunks: number;
     };
     text: string;

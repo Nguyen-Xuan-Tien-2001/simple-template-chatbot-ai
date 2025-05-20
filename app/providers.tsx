@@ -1,8 +1,9 @@
 // app/providers.tsx
-'use client'; 
+"use client";
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { ThemeProvider } from "@/src/provider/theme-provider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React from "react";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -17,7 +18,7 @@ function makeQueryClient() {
 let browserQueryClient: QueryClient | undefined = undefined;
 
 function getQueryClient() {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     // Server: Luôn tạo một QueryClient mới cho mỗi request
     return makeQueryClient();
   } else {
@@ -33,8 +34,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </ThemeProvider>
   );
 }
