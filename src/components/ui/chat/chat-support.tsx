@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 import CustomLink from "@/lib/customlink";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Send, UserRoundSearch } from "lucide-react";
+import { Send } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Markdown, { Components } from "react-markdown";
