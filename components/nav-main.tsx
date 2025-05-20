@@ -7,6 +7,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { v4 as uuidv4 } from "uuid";
+
 import { useRouter } from "next/navigation";
 
 export function NavMain({
@@ -21,7 +23,7 @@ export function NavMain({
 }) {
   const router = useRouter();
   const handleConversationClick = (url: string) => {
-    router.push(url); 
+    router.push(url + uuidv4());
   };
 
   return (

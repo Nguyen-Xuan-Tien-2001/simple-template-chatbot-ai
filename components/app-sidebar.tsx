@@ -11,7 +11,6 @@ import * as React from "react";
 import { NavFavorites } from "@/components/nav-favorites";
 import { NavMain } from "@/components/nav-main";
 // import { NavWorkspaces } from "@/components/nav-workspaces";
-import { v4 as uuidv4 } from 'uuid';
 
 import {
   Sidebar,
@@ -56,7 +55,7 @@ const data = {
     },
     {
       title: "New Chat",
-      url: "?conversation_id="+uuidv4(),
+      url: "?conversation_id=",
       icon: MessageCirclePlus,
     },
   ],

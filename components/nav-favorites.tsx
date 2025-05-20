@@ -25,6 +25,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useClearHistoryMutation } from "@/src/components/ui/chat/hooks/useClearHistoryMutation";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export function NavFavorites({
@@ -38,14 +40,37 @@ export function NavFavorites({
 }) {
   const { isMobile } = useSidebar();
   const router = useRouter();
+  const { mutate } = useClearHistoryMutation();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const conversation_id = searchParams?.get("conversation_id");
   const handleConversationClick = (url: string) => {
-    router.push(url); // Sử dụng router.push để thay đổi URL mà không reload trang
+    router.push(url); 
   };
-  const handleDelete = () => {
-    // Xử lý xóa lịch sử ở đây
-    toast("Đang phát triển tính năng xóa lịch sử");
+  const handleDelete = (conversationId: string) => {
+    const userId = localStorage.getItem("user_id");
+    if (!userId || getValueAfterEqualsSplit(conversationId) === null) {
+      toast("User ID not found.");
+      return;
+    }
+
+    mutate(
+      {
+        user_id: userId,
+        conversation_id: getValueAfterEqualsSplit(conversationId) || "",
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["userConversations", userId],
+          });
+          toast("Deleted successfully");
+        },
+        onError: () => {
+          toast("Error posting query ");
+        },
+      }
+    );
   };
 
   return (
@@ -90,7 +115,7 @@ export function NavFavorites({
                   <span>Open in New Tab</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleDelete}>
+                <DropdownMenuItem onClick={() => handleDelete(item.url)}>
                   <Trash2 className="text-muted-foreground" />
                   <span>Delete</span>
                 </DropdownMenuItem>
@@ -107,4 +132,15 @@ export function NavFavorites({
       </SidebarMenu>
     </SidebarGroup>
   );
+}
+
+function getValueAfterEqualsSplit(inputString: string): string | null {
+  // Tìm vị trí của dấu '=' đầu tiên
+  const parts = inputString.split("=");
+  // Nếu có ít nhất 2 phần (tức là có dấu '='), trả về phần tử thứ hai (giá trị sau dấu '=')
+  if (parts.length > 1) {
+    return parts[1];
+  }
+  // Nếu không có dấu '=', trả về null hoặc chuỗi rỗng tùy theo yêu cầu
+  return null;
 }
