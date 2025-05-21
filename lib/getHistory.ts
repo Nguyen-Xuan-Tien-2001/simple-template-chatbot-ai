@@ -2,21 +2,22 @@
 import axios from "axios";
 // Giữ lại các hàm và interfaces khác nếu có
 
+export interface References {
+  id: string;
+  metadata: {
+    chunk_index: number;
+    file_path: string;
+    file_size: number;
+    file_url: string;
+    file_name: string;
+    total_chunks: number;
+  };
+  text: string;
+}
 export interface Message {
   content: string;
   role: "user" | "assistant";
-  references?: {
-    id: string;
-    metadata: {
-      chunk_index: number;
-      file_path: string;
-      file_size: number;
-      file_url: string;
-      file_name: string;
-      total_chunks: number;
-    };
-    text: string;
-  }[];
+  references?: References[];
 }
 
 // Định nghĩa kiểu dữ liệu cho response từ API history
@@ -25,7 +26,10 @@ interface GetHistoryResponseData {
   data: Message[];
 }
 
-export async function getHistory(userId: string | number,conversation_id:string): Promise<Message[]> {
+export async function getHistory(
+  userId: string | number,
+  conversation_id: string
+): Promise<Message[]> {
   // Kiểm tra user_id trước khi fetch (tùy chọn, có thể xử lý bằng `enabled` trong useQuery)
   if (!userId) {
     console.warn("getHistory called without a valid userId");
@@ -41,8 +45,8 @@ export async function getHistory(userId: string | number,conversation_id:string)
       process.env.NEXT_PUBLIC_BASE_URL + END_POINT,
       {
         params: {
-          user_id: userId, 
-          conversation_id: conversation_id, 
+          user_id: userId,
+          conversation_id: conversation_id,
         },
       }
     );

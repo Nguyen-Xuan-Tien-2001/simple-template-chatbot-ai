@@ -13,15 +13,57 @@ import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Send } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Markdown, { Components } from "react-markdown";
 import { toast } from "sonner";
-import { Message } from "../../../../lib/getHistory";
+import { Message, References } from "../../../../lib/getHistory";
 import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "./chat-bubble";
 import { ChatInput } from "./chat-input";
 import { ChatMessageList } from "./chat-message-list";
 import { useGetHistory } from "./hooks/useGetHistory";
 import { postQueryToChatBot } from "./hooks/usePostQuery";
+
+const ReferenceIds: React.FC<{
+  ids: string[];
+  references: References[] | undefined;
+}> = ({ ids, references }) => {
+  if (!ids || ids.length === 0) return null;
+  const customComponents: Components = {
+    a: CustomLink,
+  };
+  return (
+    <span>
+      {ids.map((id, index) => {
+        const index_temp = Number(id) - 1;
+        const fileName = references?.[index_temp]?.metadata?.file_name;
+        const fileUrl =
+          references?.[index_temp]?.metadata?.file_url === ""
+            ? undefined
+            : references?.[index_temp]?.metadata?.file_url;
+        return (
+          <HoverCard key={index}>
+            <span>
+              <HoverCardTrigger className="text-blue-500 cursor-pointer">
+                [{id}]
+              </HoverCardTrigger>
+            </span>
+            <HoverCardContent className="w-[400px]">
+              <Markdown components={customComponents}>
+                {[
+                  "**References:** \n",
+                  fileUrl
+                    ? `\n [${fileName?.replace(".md", "")}](${fileUrl}) \n`
+                    : "\n *internal documents* \n",
+                ].join("")}
+              </Markdown>
+            </HoverCardContent>
+          </HoverCard>
+        );
+      })}
+    </span>
+  );
+};
+
 export const UUID = "988b5c3b-4d21-4c0f-bddb-73957057b667";
 
 export default function ChatSupport() {
@@ -37,9 +79,6 @@ export default function ChatSupport() {
     userId: UUID,
     conversation_id: conversationId,
   });
-  const customComponents: Components = {
-    a: CustomLink,
-  };
 
   useEffect(() => {
     if (conversation_id) {
@@ -115,57 +154,113 @@ export default function ChatSupport() {
                     fallback={item.role === "user" ? "U" : "✨"}
                   />
                   <ChatBubbleMessage>
-                    {item?.content
-                      .split(/(\[\d+(?:, \d+)*\])/)
-                      .map((part, index) => {
-                        const match = part.match(/\[(\d+(?:, \d+)*)\]/);
-                        if (match) {
-                          const idArr = match[1].split(", ").map(Number);
-                          return (
-                            <HoverCard key={index}>
-                              <span>
-                                <HoverCardTrigger className="text-blue-500 cursor-pointer">
-                                  {part}
-                                </HoverCardTrigger>
-                              </span>
-                              <HoverCardContent className="w-[400px]">
-                                <Markdown components={customComponents}>
-                                  {[
-                                    "**References:** \n",
-                                    ...idArr.map((id) => {
-                                      const fileName =
-                                        item.references?.[id - 1]?.metadata
-                                          ?.file_name;
-                                      const fileUrl =
-                                        item.references?.[id - 1]?.metadata
-                                          ?.file_url === ""
-                                          ? "internal documents"
-                                          : item.references?.[id - 1]?.metadata
-                                              ?.file_url;
-                                      return `\n [${fileName?.replace(
-                                        ".md",
-                                        ""
-                                      )}](${fileUrl}) \n`;
-                                    }),
-                                  ].join("")}
-                                </Markdown>
-                              </HoverCardContent>
-                            </HoverCard>
+                    <Markdown
+                      components={{
+                        p(props) {
+                          const { children } = props;
+                          const referenceRegex = /\[(\d+(?:,\s*\d+)*)\]/g;
+                          const renderedChildren = [];
+                          let lastIndex = 0;
+
+                          const textContent = Array.isArray(children)
+                            ? children.join("")
+                            : String(children);
+
+                          textContent.replace(
+                            referenceRegex,
+                            (match, p1, offset) => {
+                              if (offset > lastIndex) {
+                                renderedChildren.push(
+                                  <React.Fragment key={`text-${lastIndex}`}>
+                                    {textContent.substring(lastIndex, offset)}
+                                  </React.Fragment>
+                                );
+                              }
+
+                              const ids = p1
+                                .split(",")
+                                .map((id: string) => id.trim());
+
+                              // Thêm component ReferenceIds
+                              renderedChildren.push(
+                                <ReferenceIds
+                                  key={`ref-${offset}`}
+                                  ids={ids}
+                                  references={item.references}
+                                />
+                              );
+
+                              lastIndex = offset + match.length;
+                              return match;
+                            }
                           );
-                        }
-                        return (
-                          <Markdown
-                            components={{
-                              ...customComponents,
-                              p: ({ node, ...props }) => <span {...props} />,
-                              li: ({ node, ...props }) => <li {...props} />,
-                            }}
-                            key={index}
-                          >
-                            {part}
-                          </Markdown>
-                        );
-                      })}
+
+                          if (lastIndex < textContent.length) {
+                            renderedChildren.push(
+                              <React.Fragment key={`text-${lastIndex}`}>
+                                {textContent.substring(lastIndex)}
+                              </React.Fragment>
+                            );
+                          }
+
+                          return <p>{renderedChildren}</p>;
+                        },
+                        li(props) {
+                          const { children } = props;
+                          const referenceRegex = /\[(\d+(?:,\s*\d+)*)\]/g;
+                          const renderedChildren = [];
+                          let lastIndex = 0;
+
+                          const textContent = Array.isArray(children)
+                            ? children
+                                .map((child) =>
+                                  typeof child === "string" ? child : ""
+                                )
+                                .join("")
+                            : String(children);
+
+                          textContent.replace(
+                            referenceRegex,
+                            (match, p1, offset) => {
+                              if (offset > lastIndex) {
+                                renderedChildren.push(
+                                  <React.Fragment key={`text-${lastIndex}`}>
+                                    {textContent.substring(lastIndex, offset)}
+                                  </React.Fragment>
+                                );
+                              }
+
+                              const ids = p1
+                                .split(",")
+                                .map((id: string) => id.trim());
+
+                              renderedChildren.push(
+                                <ReferenceIds
+                                  key={`ref-${offset}`}
+                                  ids={ids}
+                                  references={item.references}
+                                />
+                              );
+
+                              lastIndex = offset + match.length;
+                              return match;
+                            }
+                          );
+
+                          if (lastIndex < textContent.length) {
+                            renderedChildren.push(
+                              <React.Fragment key={`text-${lastIndex}`}>
+                                {textContent.substring(lastIndex)}
+                              </React.Fragment>
+                            );
+                          }
+
+                          return <li>{renderedChildren}</li>; // Trả về thẻ li với nội dung đã xử lý
+                        },
+                      }}
+                    >
+                      {item.content || null}
+                    </Markdown>
                   </ChatBubbleMessage>
                 </ChatBubble>
               );
