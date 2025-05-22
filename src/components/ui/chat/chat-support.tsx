@@ -142,8 +142,7 @@ export default function ChatSupport() {
     <div className="w-full h-full flex flex-col overflow-hidden relative pb-24">
       <ScrollArea className="h-[68vh]">
         <ChatMessageList>
-          {
-            !!dataMessages.length &&
+          {!!dataMessages.length &&
             dataMessages?.map((item, id) => {
               return (
                 <ChatBubble
@@ -163,6 +162,12 @@ export default function ChatSupport() {
                           const renderedChildren = [];
                           let lastIndex = 0;
 
+                          const titleContent = Array.isArray(children)
+                            ? children.filter((child) =>
+                                typeof child !== "string" ? child : null
+                              )
+                            : null;
+
                           const textContent = Array.isArray(children)
                             ? children
                                 .map((child) =>
@@ -170,7 +175,10 @@ export default function ChatSupport() {
                                 )
                                 .join("")
                             : String(children);
-
+                          console.log("====================================");
+                          console.log("titleContent", titleContent);
+                          console.log("textContent", textContent);
+                          console.log("====================================");
                           textContent.replace(
                             referenceRegex,
                             (match, p1, offset) => {
@@ -206,7 +214,7 @@ export default function ChatSupport() {
                               </React.Fragment>
                             );
                           }
-                          return <li>{renderedChildren}</li>;
+                          return <li>{titleContent}{renderedChildren}</li>;
                         },
                         p(props) {
                           if (
@@ -261,7 +269,7 @@ export default function ChatSupport() {
                               );
                             }
 
-                            return <p {...props}>{renderedChildren}</p>;
+                            return <p>{renderedChildren}</p>;
                           }
                         },
                       }}
@@ -271,8 +279,7 @@ export default function ChatSupport() {
                   </ChatBubbleMessage>
                 </ChatBubble>
               );
-            })
-          }
+            })}
 
           {mutation.isPending && (
             <ChatBubble variant="received">
