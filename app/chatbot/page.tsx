@@ -23,7 +23,7 @@ const page = () => {
               <SidebarTrigger />
               <Separator orientation="vertical" className="mr-2 h-4" />
               <h1 className="text-l font-semibold custom-color">
-                Chat with our AI HSV ✨
+                Talk to the HSV AI✨
               </h1>
             </div>
             <div className="ml-auto px-3">
