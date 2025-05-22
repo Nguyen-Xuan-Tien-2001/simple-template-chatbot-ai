@@ -175,10 +175,6 @@ export default function ChatSupport() {
                                 )
                                 .join("")
                             : String(children);
-                          console.log("====================================");
-                          console.log("titleContent", titleContent);
-                          console.log("textContent", textContent);
-                          console.log("====================================");
                           textContent.replace(
                             referenceRegex,
                             (match, p1, offset) => {
@@ -214,9 +210,21 @@ export default function ChatSupport() {
                               </React.Fragment>
                             );
                           }
-                          return <li>{titleContent}{renderedChildren}</li>;
+                          return (
+                            <li>
+                              {titleContent}
+                              {renderedChildren}
+                            </li>
+                          );
                         },
                         p(props) {
+                          const { children } = props;
+                          const titleContent = Array.isArray(children)
+                            ? children.filter((child) =>
+                                typeof child !== "string" ? child : null
+                              )
+                            : null;
+
                           if (
                             React.isValidElement(props.children) &&
                             props.children.type === "strong"
@@ -229,7 +237,11 @@ export default function ChatSupport() {
                             let lastIndex = 0;
 
                             const textContent = Array.isArray(children)
-                              ? children.join("")
+                              ? children
+                                  .map((child) =>
+                                    typeof child === "string" ? child : ""
+                                  )
+                                  .join("")
                               : String(children);
 
                             textContent.replace(
@@ -269,7 +281,12 @@ export default function ChatSupport() {
                               );
                             }
 
-                            return <p>{renderedChildren}</p>;
+                            return (
+                              <p>
+                                {titleContent}
+                                {renderedChildren}
+                              </p>
+                            );
                           }
                         },
                       }}
