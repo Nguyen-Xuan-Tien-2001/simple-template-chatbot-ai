@@ -66,6 +66,14 @@ const ReferenceIds: React.FC<{
 
 export const UUID = "988b5c3b-4d21-4c0f-bddb-73957057b667";
 
+const DataTemp = [
+  {
+    content:
+      "# Từ mật khẩu đến Passkey: Bước vào kỷ nguyên mới của an ninh mạng Các cuộc **[tấn công phishing](https://hpttechstore.com/blogs/news/yubikey-ho-tro-phong-chong-tan-cong-phishing-nhu-the-nao)** (lừa đảo trực tuyến) đang ngày càng phổ biến và được xem là nguyên nhân góp phần vào hơn 80% các vi phạm an ninh. [1]\n\n Kẻ tấn công thường giả mạo các thực thể hợp pháp để lừa người dùng cung cấp thông tin cá nhân thông qua email, mạng xã hội, tin nhắn hoặc trang web giả mạo. Khi đã có được thông tin cá nhân, chúng có thể tiếp tục xâm nhập vào nhiều tài khoản khác. ## **Mật khẩu và những hạn chế** Mật khẩu từ lâu đã là phương thức chính để xác minh danh tính trực tuyến, nhưng chúng vốn dĩ không an toàn. Người dùng thường phải tạo ra những chuỗi ký tự phức tạp, khó nhớ và dễ mắc lỗi khi nhập. Hơn nữa, thói quen sử dụng lại mật khẩu cho nhiều tài khoản hoặc chọn những mật khẩu dễ đoán tạo điều kiện cho hacker xâm nhập. Các cuộc tấn công phishing tinh vi có thể khiến người dùng vô tình cung cấp mật khẩu của mình cho kẻ xấu.Để cài đặt YubiKey cho tài khoản Facebook, bạn có thể làm theo các bước sau đây, chi tiết như sau:\n\n**1. Chuẩn bị:**\n\n*   YubiKey (phiên bản tương thích với máy tính hoặc điện thoại của bạn).\n*   Trình duyệt web hoặc ứng dụng Facebook trên điện thoại.\n*   Tài khoản Facebook đã bật xác thực hai yếu tố (2FA).\n\n**2. Cài đặt trên máy tính:**\n\n*   **Bước 1:** Đăng nhập vào tài khoản Facebook của bạn.\n    *   Mở trình duyệt web trên máy tính.\n    *   Truy cập facebook.com và đăng nhập.\n*   **Bước 2:** Truy cập Cài đặt & Quyền riêng tư.\n    *   Nhấp vào mũi tên nhỏ xuống ở góc trên cùng bên phải, chọn “Cài đặt & Quyền riêng tư”.\n    *   Chọn “Cài đặt”, sau đó nhấp vào “Bảo mật và Đăng nhập” trong menu bên trái.\n*   **Bước 3:** Bật xác thực hai yếu tố.\n    *   Tìm mục “Xác thực hai yếu tố”, nhấp vào “Chỉnh sửa”.\n*   **Bước 4:** Thêm khóa YubiKey.\n    *   Chọn “Khóa bảo mật vật lý” và nhấp vào “Thêm khóa bảo mật”.\n\n**3. Cài đặt trên điện thoại:**\n\n*   **Bước 1:** Mở ứng dụng Facebook.\n    *   Mở ứng dụng Facebook trên điện thoại và đăng nhập.\n*   **Bước 2:** Truy cập Cài đặt & Quyền riêng tư.\n    *   Nhấn vào ba đường ngang ở góc dưới bên phải (iOS) hoặc góc trên bên phải (Android).\n    *   Chọn “Cài đặt & Quyền riêng tư”, sau đó chọn “Cài đặt”.\n    *   Nhấn vào “Bảo mật và Đăng nhập”.\n*   **Bước 3:** Thêm YubiKey.\n    *   Giống như trên máy tính, hãy truy cập vào mục “Xác thực hai yếu tố” và chọn “Khóa bảo mật vật lý”. [1]\n\n**4. Hoàn tất cài đặt:**\n\n*   Sau khi đã làm theo các bước trên, chương trình sẽ yêu cầu bạn chạm vào YubiKey để tiếp tục. [2]\n\nLưu ý: Bạn cần nhập mã PIN đã được đặt trên YubiKey vào tài khoản Facebook của mình để hoàn tất quá trình cài đặt. [3]",
+    role: "assistant",
+    references: [],
+  },
+];
 export default function ChatSupport() {
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
@@ -142,7 +150,8 @@ export default function ChatSupport() {
     <div className="w-full h-full flex flex-col overflow-hidden relative pb-24">
       <ScrollArea className="h-[68vh]">
         <ChatMessageList>
-          {!!dataMessages.length &&
+          {
+            !!dataMessages.length &&
             dataMessages?.map((item, id) => {
               return (
                 <ChatBubble
@@ -156,55 +165,6 @@ export default function ChatSupport() {
                   <ChatBubbleMessage>
                     <Markdown
                       components={{
-                        p(props) {
-                          const { children } = props;
-                          const referenceRegex = /\[(\d+(?:,\s*\d+)*)\]/g;
-                          const renderedChildren = [];
-                          let lastIndex = 0;
-
-                          const textContent = Array.isArray(children)
-                            ? children.join("")
-                            : String(children);
-
-                          textContent.replace(
-                            referenceRegex,
-                            (match, p1, offset) => {
-                              if (offset > lastIndex) {
-                                renderedChildren.push(
-                                  <React.Fragment key={`text-${lastIndex}`}>
-                                    {textContent.substring(lastIndex, offset)}
-                                  </React.Fragment>
-                                );
-                              }
-
-                              const ids = p1
-                                .split(",")
-                                .map((id: string) => id.trim());
-
-                              // Thêm component ReferenceIds
-                              renderedChildren.push(
-                                <ReferenceIds
-                                  key={`ref-${offset}`}
-                                  ids={ids}
-                                  references={item.references}
-                                />
-                              );
-
-                              lastIndex = offset + match.length;
-                              return match;
-                            }
-                          );
-
-                          if (lastIndex < textContent.length) {
-                            renderedChildren.push(
-                              <React.Fragment key={`text-${lastIndex}`}>
-                                {textContent.substring(lastIndex)}
-                              </React.Fragment>
-                            );
-                          }
-
-                          return <p>{renderedChildren}</p>;
-                        },
                         li(props) {
                           const { children } = props;
                           const referenceRegex = /\[(\d+(?:,\s*\d+)*)\]/g;
@@ -254,8 +214,63 @@ export default function ChatSupport() {
                               </React.Fragment>
                             );
                           }
+                          return <li>{renderedChildren}</li>;
+                        },
+                        p(props) {
+                          if (
+                            React.isValidElement(props.children) &&
+                            props.children.type === "strong"
+                          ) {
+                            return <p {...props} />;
+                          } else {
+                            const { children } = props;
+                            const referenceRegex = /\[(\d+(?:,\s*\d+)*)\]/g;
+                            const renderedChildren = [];
+                            let lastIndex = 0;
 
-                          return <li>{renderedChildren}</li>; // Trả về thẻ li với nội dung đã xử lý
+                            const textContent = Array.isArray(children)
+                              ? children.join("")
+                              : String(children);
+
+                            textContent.replace(
+                              referenceRegex,
+                              (match, p1, offset) => {
+                                if (offset > lastIndex) {
+                                  renderedChildren.push(
+                                    <React.Fragment key={`text-${lastIndex}`}>
+                                      {textContent.substring(lastIndex, offset)}
+                                    </React.Fragment>
+                                  );
+                                }
+
+                                const ids = p1
+                                  .split(",")
+                                  .map((id: string) => id.trim());
+
+                                // Thêm component ReferenceIds
+                                renderedChildren.push(
+                                  <ReferenceIds
+                                    key={`ref-${offset}`}
+                                    ids={ids}
+                                    references={item.references}
+                                  />
+                                );
+
+                                lastIndex = offset + match.length;
+                                return match;
+                              }
+                            );
+
+                            if (lastIndex < textContent.length) {
+                              renderedChildren.push(
+                                <React.Fragment key={`text-${lastIndex}`}>
+                                  {textContent.substring(lastIndex)}
+                                </React.Fragment>
+                              );
+                            }
+
+                            return <p {...props}>{renderedChildren}</p>;
+                          }
                         },
                       }}
                     >
@@ -264,7 +279,8 @@ export default function ChatSupport() {
                   </ChatBubbleMessage>
                 </ChatBubble>
               );
-            })}
+            })
+          }
 
           {mutation.isPending && (
             <ChatBubble variant="received">
