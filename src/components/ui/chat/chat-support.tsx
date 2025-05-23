@@ -305,8 +305,8 @@ export default function ChatSupport() {
             </ChatBubble>
           )}
           {!dataMessages.length && (
-            <p className="text-sm text-muted-foreground">
-              Ask me anything to get started
+            <p className="text-center text-6xl font-semibold custom-color m-auto mt-60">
+              Hi, Tien
             </p>
           )}
         </ChatMessageList>

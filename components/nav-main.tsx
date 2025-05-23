@@ -33,7 +33,11 @@ export function NavMain({
           <SidebarMenuButton
             asChild
             isActive={item.isActive}
-            onClick={() => handleConversationClick(item.url)}
+            onClick={() => {
+              return (
+                item.title === "New Chat" && handleConversationClick(item.url)
+              );
+            }}
           >
             <span className="cursor-pointer">
               <item.icon />
